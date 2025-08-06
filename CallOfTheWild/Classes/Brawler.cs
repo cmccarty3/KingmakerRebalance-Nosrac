@@ -49,6 +49,7 @@ using Kingmaker.Blueprints.Items.Equipment;
 using Newtonsoft.Json;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.PubSubSystem;
+using CallOfTheWild.NewMechanics;
 
 namespace CallOfTheWild
 {
@@ -907,7 +908,7 @@ namespace CallOfTheWild
             var alchemist_mutagen = library.Get<BlueprintFeature>("cee8f65448ce71c4b8b8ca13751dd8ea");
             mutagen = library.CopyAndAdd(alchemist_mutagen, "MutagenicMaulerMutagen", "");
             mutagen.GetComponent<AddFacts>().DoNotRestoreMissingFacts = true;
-            foreach (var c in mutagen.GetComponents<SpellLevelByClassLevel>().ToArray())
+            foreach (var c in mutagen.GetComponents<NewMechanics.SpellLevelByClassLevel>().ToArray())
             {
                 mutagen.ReplaceComponent(c, c.CreateCopy(cc => cc.Class = brawler_class));
             }
@@ -976,7 +977,7 @@ namespace CallOfTheWild
             greater_mutagen.RemoveComponents<PrerequisiteClassLevel>();
             greater_mutagen.SetDescription("At 12th level, the mutagenic mauler learns the greater mutagen discovery.");
         
-            foreach (var c in greater_mutagen.GetComponents<SpellLevelByClassLevel>().ToArray())
+            foreach (var c in greater_mutagen.GetComponents<NewMechanics.SpellLevelByClassLevel>().ToArray())
             {
                 greater_mutagen.ReplaceComponent(c, c.CreateCopy(cc => cc.Class = brawler_class));
             }
@@ -1777,7 +1778,7 @@ namespace CallOfTheWild
                 {
                     for (int i = 1; i < brawler_part.getNumExtraAttacks(); i++)
                     {
-                        ++evt.SecondaryHand.MainAttacks;
+                        AttacksCountMutator.AddMainAttacks(evt.SecondaryHand, +1);
                     }
                 }
                 else if (__instance.Fact.GetRank() > 1)

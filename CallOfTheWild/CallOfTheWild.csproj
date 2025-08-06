@@ -61,7 +61,7 @@
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-  <!-- Local pinned UMM & Harmony -->
+    <!-- Local pinned UMM & Harmony -->
     <Reference Include="UnityModManager">
       <HintPath>$(MSBuildThisFileDirectory)externals\umm_0246\UnityModManager.dll</HintPath>
       <Private>False</Private>
@@ -302,6 +302,7 @@
     <Compile Include="NewMechanics\AooMechanics.cs" />
     <Compile Include="NewMechanics\ArchetypePrerequisites.cs" />
     <Compile Include="NewMechanics\AttackReplacement.cs" />
+    <Compile Include="NewMechanics\AttacksCountMutator.cs" />
     <Compile Include="NewMechanics\BladeTutor.cs" />
     <Compile Include="NewMechanics\BleedMechanics.cs" />
     <Compile Include="NewMechanics\BuffMechanics.cs" />

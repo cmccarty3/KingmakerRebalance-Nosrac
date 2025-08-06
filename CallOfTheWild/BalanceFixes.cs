@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints;
+﻿using CallOfTheWild.NewMechanics;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
@@ -1333,7 +1334,7 @@ namespace CallOfTheWild
             {
                 for (int i = 1; i < brawler_part.getNumExtraAttacks(); i++)
                 {
-                    ++evt.SecondaryHand.MainAttacks;
+                    AttacksCountMutator.AddMainAttacks(evt.SecondaryHand, +1);
                 }
             }
             else if (this.Fact.GetRank() > 2)

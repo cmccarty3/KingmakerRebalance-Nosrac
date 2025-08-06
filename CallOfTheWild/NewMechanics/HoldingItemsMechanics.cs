@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints;
+﻿using CallOfTheWild.NewMechanics;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Items.Armors;
@@ -1013,7 +1014,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
                 && (!considerUnarmedAndIgnore(blueprint1, __instance) || blueprint2 == null || blueprint2.IsUnarmed)
                 )
             {
-                ++__instance.PrimaryHand.MainAttacks;
+                AttacksCountMutator.AddMainAttacks(__instance.PrimaryHand, +1);
                 if (!blueprint1.IsNatural || (bool)__instance.Initiator.Descriptor.State.Features.IterativeNaturalAttacks || __instance.ForceIterativeNaturealAttacks || blueprint1.IsUnarmed)
                     __instance.PrimaryHand.PenalizedAttacks += Math.Max(0, num_penalized_attacks);
             }
@@ -1023,7 +1024,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
                 || (primary_hand.MaybeWeapon?.HoldInTwoHands).GetValueOrDefault() == true
                 )
                 return false;
-            ++__instance.SecondaryHand.MainAttacks;
+            AttacksCountMutator.AddMainAttacks(__instance.SecondaryHand, +1);
             if (blueprint1 == null || !considerUnarmedAndIgnore(blueprint1, __instance)
                 && (blueprint1 == null || !blueprint1.IsNatural || !(bool)__instance.Initiator.Descriptor.State.Features.IterativeNaturalAttacks && !__instance.ForceIterativeNaturealAttacks)
                 || (blueprint2.IsUnarmed)

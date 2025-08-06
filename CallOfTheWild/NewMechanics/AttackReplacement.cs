@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints;
+﻿using CallOfTheWild.NewMechanics;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.PubSubSystem;
@@ -84,7 +85,7 @@ namespace CallOfTheWild.AttackReplacementMechanics
                 return;
             }
 
-            evt.PrimaryHand.MainAttacks--;
+            AttacksCountMutator.AddMainAttacks(evt.PrimaryHand, -1);
             this.valid = true;
         }
     }
