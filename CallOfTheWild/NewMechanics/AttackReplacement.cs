@@ -89,9 +89,4 @@ namespace CallOfTheWild.AttackReplacementMechanics
         }
     }
 
-
-
-
-
-
 }

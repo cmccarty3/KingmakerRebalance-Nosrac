@@ -93,7 +93,7 @@ namespace CallOfTheWild.RerollsMechanics
         static bool Prefix(RuleRollD20 __instance, ref int? ___m_PreRolledResult, ref int __result)
         {         
             int? preRolledResult = ___m_PreRolledResult;
-            int val1 = !preRolledResult.HasValue ? RulebookEvent.Dice.D20 : preRolledResult.Value;
+            int val1 = preRolledResult.HasValue ? preRolledResult.Value : RulebookEvent.Dice.D20.Value;
 
             int rerollsAmount = __instance.RerollsAmount;
 

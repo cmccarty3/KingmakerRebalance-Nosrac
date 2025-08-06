@@ -902,9 +902,11 @@ namespace CallOfTheWild
                 addToSplitMajorHex(heal1_hex_ability, healing_hex1_feature, true);
                 addToSplitMajorHex(heal2_hex_ability, healing_hex2_feature, true);
             }
+            // Ensure undead targets are healed (use Inflict mechanics on undead)
+            fixHexHealingForUndead(heal1_hex_ability);
+            fixHexHealingForUndead(heal2_hex_ability);
             return healing;
         }
-
 
 
         public BlueprintFeature createMajorAmeliorating(string name_prefix, string display_name, string description, string abil1_guid, string abil2_guid,
@@ -2068,6 +2070,52 @@ namespace CallOfTheWild
             var cast_trigger = amplified_hex_feat.GetComponent<NewMechanics.AbilityUsedTrigger>();
             cast_trigger.Spells = cast_trigger.Spells.AddToArray(hex);
         }
+
+        // Heals undead with negative energy; living are healed normally.
+        // Keep this inside the HexEngine class.
+        private void fixHexHealingForUndead(BlueprintAbility ability)
+        {
+            if (ability == null) return;
+
+            // Match existing pattern in this file: use the touch delivery ability if present
+            var targetAbility = ability.StickyTouch == null ? ability : ability.StickyTouch.TouchDeliveryAbility;
+
+            var run = targetAbility.GetComponent<AbilityEffectRunAction>();
+            if (run == null || run.Actions == null || run.Actions.Actions == null)
+                return;
+
+            var actions = run.Actions.Actions;
+            var newActions = new List<GameAction>();
+            var replacedAny = false;
+
+            foreach (var act in actions)
+            {
+                if (act is ContextActionHealTarget healAction)
+                {
+                    // Reuse exact dice/rank scaling already configured on the heal
+                    ContextDiceValue healDice = healAction.Value;
+
+                    // Negative energy "damage" heals undead due to Negative Energy Affinity
+                    var healUndead = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, healDice);
+                    var healLiving = Common.createContextActionHealTarget(healDice);
+                    var isUndead = Common.createContextConditionHasFact(Common.undead);
+
+                    // If undead -> apply negative energy (heals them), else -> normal healing
+                    newActions.Add(Helpers.CreateConditional(new Condition[] { isUndead }, healUndead, healLiving));
+                    replacedAny = true;
+                }
+                else
+                {
+                    newActions.Add(act);
+                }
+            }
+
+            if (replacedAny)
+            {
+                run.Actions = Helpers.CreateActionList(newActions.ToArray());
+            }
+        }
+
 
 
         static void createSplitHex()

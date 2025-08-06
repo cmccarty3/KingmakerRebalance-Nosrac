@@ -25,7 +25,6 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Playables;
-using static Kingmaker.Visual.CharacterSystem.BakedCharacter;
 
 namespace CallOfTheWild.UnitViewMechanics
 {
@@ -82,8 +81,6 @@ namespace CallOfTheWild.UnitViewMechanics
             return always_draw_weapons ? false : peaceful;
         }
     }*/
-
-
 
     class InvisibleUnit : BlueprintComponent
     {
@@ -144,7 +141,6 @@ namespace CallOfTheWild.UnitViewMechanics
         }
     }
 
-
     [Harmony12.HarmonyPatch(typeof(EntityDataBase), "AttachToViewOnLoad")]
     class EntityDataBase_AttachToViewOnLoad_Patch
     {
@@ -171,7 +167,6 @@ namespace CallOfTheWild.UnitViewMechanics
             }
         }
     }
-
 
     public class UnitPartViewReplacement : UnitPart
     {
@@ -219,14 +214,11 @@ namespace CallOfTheWild.UnitViewMechanics
         }
     }
 
-
     public class ChangeUnitScaleForInventory : BlueprintComponent
     {
         public float scale_factor;
 
     }
-
-
 
     class Aux
     {
@@ -290,14 +282,32 @@ namespace CallOfTheWild.UnitViewMechanics
             {
                 var character = newView.GetComponent<Character>();
                 if (character == null)
-                {                   
+                {
                     character = newView.gameObject.AddComponent<Character>();
-                    character.AnimatorPrefab = BlueprintRoot.Instance.CharGen.FemaleDoll.AnimatorPrefab;
-                    character.BakedCharacter = CreateBakedCharacter(newView.gameObject);
-                    //BlueprintRoot.Instance.CharGen.FemaleDoll
-                    /*var drow = ResourcesLibrary.TryGetResource<UnitEntityView>("a65d9da806faa8f4ca078dfe942bf458", true);
-                    CloneMonobehaviour(drow.GetComponentInChildren<Character>(), character);
-                    character.BakedCharacter = CreateBakedCharacter(newView.gameObject);*/
+
+                    // Prefer a fully-initialized donor Character from CharGen female doll.
+                    var donorView = BlueprintRoot.Instance?.CharGen?.FemaleDoll;
+                    var donorChar = donorView != null ? donorView.GetComponent<Character>() : null;
+
+                    if (donorChar != null)
+                    {
+                        // Copy fields so animator, skeleton, animation set, etc. are valid
+                        CloneMonobehaviour(donorChar, character);
+
+                        // Make sure the critical references are set explicitly
+                        character.AnimatorPrefab = donorChar.AnimatorPrefab;
+                        character.Skeleton = donorChar.Skeleton;
+                        character.AnimationSet = donorChar.AnimationSet;
+                        character.BakedCharacter = donorChar.BakedCharacter;
+                    }
+                    else
+                    {
+                        // Minimal safe init: no custom baking, just a valid animator & an empty baked character
+                        character.AnimatorPrefab = BlueprintRoot.Instance.CharGen.FemaleDoll.AnimatorPrefab;
+                        var emptyBaked = ScriptableObject.CreateInstance<BakedCharacter>();
+                        emptyBaked.RendererDescriptions = new List<BakedCharacter.RendererDescription>();
+                        character.BakedCharacter = emptyBaked;
+                    }
                 }
             }
             Owner.Unit.AttachToViewOnLoad(newView);
@@ -333,46 +343,28 @@ namespace CallOfTheWild.UnitViewMechanics
         static public void maybeAddCharacter(UnitEntityView original)
         {
             var character = original.GetComponent<Character>();
-            if (character == null)
-            {
-                character = original.gameObject.AddComponent<Character>();
-                //BlueprintRoot.Instance.CharGen.FemaleDoll
-                var drow = ResourcesLibrary.TryGetResource<UnitEntityView>("a65d9da806faa8f4ca078dfe942bf458", true);
-                CloneMonobehaviour(drow.GetComponentInChildren<Character>(), character);
-                character.BakedCharacter = CreateBakedCharacter(original.gameObject);
-            }
-        }
+            if (character != null)
+                return;
 
+            var donorView = BlueprintRoot.Instance?.CharGen?.FemaleDoll;
+            var donorChar = donorView != null ? donorView.GetComponent<Character>() : null;
 
-
-        static BakedCharacter CreateBakedCharacter(GameObject source)
-        {
-            if (source == null)
+            character = original.gameObject.AddComponent<Character>();
+            if (donorChar != null)
             {
-                Main.logger.Log("CreateBakedCharacter failed. Source is null");
-                return null;
+                CloneMonobehaviour(donorChar, character);
+                character.AnimatorPrefab = donorChar.AnimatorPrefab;
+                character.Skeleton = donorChar.Skeleton;
+                character.AnimationSet = donorChar.AnimationSet;
+                character.BakedCharacter = donorChar.BakedCharacter;
             }
-            var renderers = source.GetComponentsInChildren<SkinnedMeshRenderer>();
-            var descriptions = new List<RendererDescription>();
-            foreach (var renderer in renderers)
+            else
             {
-                var desc = new RendererDescription();
-                desc.Mesh = renderer.sharedMesh;
-                var bonesNames = renderer.bones.Select(t => t.name).ToArray();
-                desc.Textures = new List<CharacterTextureDescription>()
-                    {
-                        new CharacterTextureDescription(CharacterTextureChannel.Diffuse, renderer.material.mainTexture as Texture2D)
-                    };
-                desc.Material = renderer.sharedMaterial;
-                desc.RootBone = "Pelvis";
-                desc.Bones = bonesNames;
-                desc.Name = renderer.name;
-                descriptions.Add(desc);
+                character.AnimatorPrefab = BlueprintRoot.Instance.CharGen.FemaleDoll.AnimatorPrefab;
+                var emptyBaked = ScriptableObject.CreateInstance<BakedCharacter>();
+                emptyBaked.RendererDescriptions = new List<BakedCharacter.RendererDescription>();
+                character.BakedCharacter = emptyBaked;
             }
-            var bakedCharacter = ScriptableObject.CreateInstance<BakedCharacter>();
-            bakedCharacter.RendererDescriptions = descriptions;
-            bakedCharacter.name = source.name + "BakedCharacter";
-            return bakedCharacter;
         }
 
 

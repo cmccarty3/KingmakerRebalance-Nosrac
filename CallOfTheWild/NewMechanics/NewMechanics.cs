@@ -6397,7 +6397,7 @@ namespace CallOfTheWild
 
                 if (previous_event != null && (previous_event is RuleAttackRoll) && !(previous_event as RuleAttackRoll).IsCriticalRoll)
                 {
-                    evt.SetReroll(1, true);
+                    evt.SetReroll(1, true, this.GetType().Name);
                 }
             }
 
@@ -6498,11 +6498,11 @@ namespace CallOfTheWild
                 {
                     if (extra_reroll_feature != null && evt.Initiator.Descriptor.HasFact(extra_reroll_feature))
                     {
-                        evt.SetReroll(3, true);
+                        evt.SetReroll(3, true, this.GetType().Name);
                     }
                     else
                     {
-                        evt.SetReroll(1, true);
+                        evt.SetReroll(1, true, this.GetType().Name);
                     }
                     if (resource != null)
                     {
@@ -7798,7 +7798,7 @@ namespace CallOfTheWild
                     evt.Override(this.Roll);
                 else
                 {
-                    evt.SetReroll(this.RollsAmount, this.TakeBest);
+                    evt.SetReroll(this.RollsAmount, this.TakeBest, this.GetType().Name);
                 }
             }
 

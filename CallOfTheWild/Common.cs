@@ -62,6 +62,7 @@ using Kingmaker.UnitLogic.Class.Kineticist;
 using Kingmaker.UnitLogic.Mechanics.Properties;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.UnitLogic.Commands;
+using Kingmaker.Visual.Particles;
 
 namespace CallOfTheWild
 {
@@ -2312,12 +2313,40 @@ namespace CallOfTheWild
 
         public static void AddBattleLogMessage(string message, object tooltip = null, Color? color = null)
         {
-            var data = new LogDataManager.LogItemData(message, color ?? GameLogStrings.Instance.DefaultColor, tooltip, PrefixIcon.None);
-            if (Game.Instance.UI.BattleLogManager)
+            // First, attempt to find and use a public constructor for a standalone LogItemData class,
+            // which may exist in newer builds. This avoids reliance on nested types.
+            Type logItemType = Type.GetType("LogItemData") ?? Type.GetType("PFUI.LogItemData");
+            object logItem = null;
+            if (logItemType != null)
             {
-                Game.Instance.UI.BattleLogManager.LogView.AddLogEntry(data);
+                try
+                {
+                    // Look for a (string, Color, object, PrefixIcon) constructor
+                    var ctorParams = new Type[] { typeof(string), typeof(Color), typeof(object), typeof(object) };
+                    var ctor = logItemType.GetConstructor(ctorParams);
+                    if (ctor != null)
+                    {
+                        logItem = ctor.Invoke(new object[]
+                            { message, color ?? GameLogStrings.Instance.DefaultColor, tooltip, null });
+                    }
+                }
+                catch { /* fall back */ }
+            }
+
+            var blm = Game.Instance?.UI?.BattleLogManager;
+            if (blm != null && logItem != null)
+            {
+                // Attempt to call AddLogEntry(object) if available
+                var logView = blm.LogView;
+                var addMethod = logView?.GetType().GetMethod("AddLogEntry", new[] { logItem.GetType() });
+                if (addMethod != null)
+                {
+                    addMethod.Invoke(logView, new[] { logItem });
+                    return;
+                }
             }
         }
+
 
 
         static public ClassLevelsForPrerequisites createClassLevelsForPrerequisites(BlueprintCharacterClass fake_class, BlueprintCharacterClass actual_class, double modifier = 1.0, int summand = 0)
