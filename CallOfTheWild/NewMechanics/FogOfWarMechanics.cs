@@ -11,6 +11,7 @@ using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -81,19 +82,31 @@ namespace CallOfTheWild.FogOfWarMechanics
     }
 
 
-
-    [Harmony12.HarmonyPatch(typeof(SelectionManager))]
-    [Harmony12.HarmonyPatch("GetNearestSelectedUnit", Harmony12.MethodType.Normal)]
-    public class SelectionManager_GetNearestSelectedUnit_Patch
+    public class SelectionManagerBase_GetNearestSelectedUnit_Patch
     {
-        static bool Prefix(SelectionManager __instance, Vector3 point, ref UnitEntityData __result)
+        // Tell Harmony exactly which overload to patch:
+        static MethodBase TargetMethod()
+        {
+            return Harmony12.AccessTools.DeclaredMethod(
+                typeof(SelectionManagerBase),
+                "GetNearestSelectedUnit",
+                new[] { typeof(UnityEngine.Vector3) },  // <-- overload disambiguation
+                null
+            );
+        }
+
+        static bool Prefix(SelectionManagerBase __instance, UnityEngine.Vector3 point, ref UnitEntityData __result)
         {
             if (__instance.SelectedUnits.Count > 1)
-                __result = __instance.SelectedUnits.Where<UnitEntityData>((Func<UnitEntityData, bool>)(u =>!(u.Get<UnitPartFogOfWarRevealer>()?.active()).GetValueOrDefault())).OrderBy<UnitEntityData, float>((Func<UnitEntityData, float>)(u => u.DistanceTo(point))).FirstOrDefault<UnitEntityData>();
+                __result = __instance.SelectedUnits
+                    .Where(u => !(u.Get<CallOfTheWild.FogOfWarMechanics.UnitPartFogOfWarRevealer>()?.active()).GetValueOrDefault())
+                    .OrderBy(u => u.DistanceTo(point))
+                    .FirstOrDefault();
             else
-                __result = __instance.SelectedUnits.FirstOrDefault<UnitEntityData>(u => !(u.Get<UnitPartFogOfWarRevealer>()?.active()).GetValueOrDefault());
+                __result = __instance.SelectedUnits
+                    .FirstOrDefault(u => !(u.Get<CallOfTheWild.FogOfWarMechanics.UnitPartFogOfWarRevealer>()?.active()).GetValueOrDefault());
 
-            return false;
+            return false; // skip original
         }
     }
 
