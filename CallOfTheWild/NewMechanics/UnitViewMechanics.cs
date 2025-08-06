@@ -28,30 +28,31 @@ using UnityEngine.Playables;
 
 namespace CallOfTheWild.UnitViewMechanics
 {
-    [Harmony12.HarmonyPatch(typeof(EntityViewBase), "SetVisible")]
-    class EntityViewBase_SetVisible_Patch
+    [Harmony12.HarmonyPatch]
+    static class EntityViewBase_SetVisible_Patch
     {
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        // Pick the correct overload at runtime; fall back to the property setter if needed
+        static MethodBase TargetMethod()
         {
-            var codes = instructions.ToList();
-            var check_fader = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("set_Visible"));
+            var t = typeof(EntityViewBase);
+            // Most older builds
+            var m = AccessTools.Method(t, "SetVisible", new[] { typeof(bool) });
+            if (m != null) return m;
 
-            codes.Insert(check_fader, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
-                                                                       new Func<EntityViewBase, bool, bool>(SetVisible).Method
-                                                                       )
-                                                                       );
-            codes.Insert(check_fader - 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_0));
+            // Newer builds (e.g., 2-arg variant)
+            m = AccessTools.Method(t, "SetVisible", new[] { typeof(bool), typeof(bool) });
+            if (m != null) return m;
 
-            return codes.AsEnumerable();
+            // Fallback: patch the Visible property setter directly
+            return AccessTools.Property(t, "Visible")?.GetSetMethod(true);
         }
 
-
-        internal static bool SetVisible(EntityViewBase view_base, bool visible)
+        // Force invisible units to remain hidden by modifying the 'visible' argument
+        static void Prefix(EntityViewBase __instance, ref bool visible)
         {
-            var entity_data = (view_base.Data as UnitEntityData);
-            bool is_invisible_unit = entity_data?.Blueprint?.GetComponent<InvisibleUnit>() != null;
-
-            return is_invisible_unit ? false : visible;
+            var unit = __instance.Data as UnitEntityData;
+            if (unit?.Blueprint?.GetComponent<InvisibleUnit>() != null)
+                visible = false;
         }
     }
 
@@ -94,7 +95,7 @@ namespace CallOfTheWild.UnitViewMechanics
     };
 
 
-    [Harmony12.HarmonyPatch(typeof(DollRoom), "CreateAvatar")]
+    [Harmony12.HarmonyPatch(typeof(DollRoom), "CreateAvatar", new[] { typeof(Character), typeof(string) })]
     class DollRoom_CreateAvatar_Patch
     {
         static bool Prefix(Character originalAvatar, string dollName, DollRoom __instance, ref Character __result, Transform ___m_CharacterPlaceholder)

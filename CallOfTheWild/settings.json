@@ -1,8 +1,8 @@
 {
-  "update_companions": true,
-  "reduce_skill_points": true,
+  "update_companions": false,
+  "reduce_skill_points": false,
   "sacred_huntsmaster_animal_focus": true,
-  "swap_weapon_sets_as_move_action": true,
+  "swap_weapon_sets_as_move_action": false,
   "allow_spellcasting_in_elemental_form": true,
   "fix_teamwork_feats": true,
   "fix_ecclesitheurge_class": true,
@@ -12,7 +12,7 @@
   "one_sneak_attack_per_target_per_spell": true,
   "metamagic_for_spontaneous_spell_conversion": true,
   "remove_solo_tactics_from_sacred_huntsmaster": true,
-  "update_kineticist_archetypes": true,
+  "update_kineticist_archetypes": false,
   "balance_fixes_monk_ac": true,
   "balance_fixes": true,
   "insightful_contemplation_forbids_attack":  true
