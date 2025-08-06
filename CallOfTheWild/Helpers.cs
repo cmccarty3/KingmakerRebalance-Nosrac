@@ -111,9 +111,12 @@ namespace CallOfTheWild
 
         public static T[] AddToArray<T>(this T[] array, T value)
         {
-            var len = array.Length;
+            var len = array?.Length ?? 0;
             var result = new T[len + 1];
-            Array.Copy(array, result, len);
+            if (len > 0)
+            {
+                Array.Copy(array, result, len);
+            }
             result[len] = value;
             return result;
         }
@@ -121,6 +124,10 @@ namespace CallOfTheWild
 
         public static T[] RemoveFromArrayByType<T, V>(this T[] array)
         {
+            if (array == null)
+            {
+                return Array.Empty<T>();
+            }
             List<T> list = new List<T>();
 
             foreach (var c in array)
@@ -137,19 +144,29 @@ namespace CallOfTheWild
 
         public static T[] AddToArray<T>(this T[] array, params T[] values)
         {
-            var len = array.Length;
-            var valueLen = values.Length;
+            var len = array?.Length ?? 0;
+            var valueLen = values?.Length ?? 0;
             var result = new T[len + valueLen];
-            Array.Copy(array, result, len);
-            Array.Copy(values, 0, result, len, valueLen);
+            if (len > 0)
+            {
+                Array.Copy(array, result, len);
+            }
+            if (valueLen > 0)
+            {
+                Array.Copy(values, 0, result, len, valueLen);
+            }
             return result;
         }
 
 
-        public static T[] AddToArray<T>(this T[] array, IEnumerable<T> values) => AddToArray(array, values.ToArray());
+        public static T[] AddToArray<T>(this T[] array, IEnumerable<T> values) => AddToArray(array ?? Array.Empty<T>(), values.ToArray());
 
         public static T[] RemoveFromArray<T>(this T[] array, T value)
         {
+            if (array == null)
+            {
+                return Array.Empty<T>();
+            }
             var list = array.ToList();
             return list.Remove(value) ? list.ToArray() : array;
         }
