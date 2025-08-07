@@ -40,12 +40,17 @@ namespace EldritchArcana
 #if DEBUG
             var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            // If this doesn't match the previous baseline (or it didn't exist), write the current state.
-            if (MatchesBaseline(Path.Combine(dir, "baseline_assets.txt"))) return;
+            // If this doesn't match the previous baseline (or it didn't exist), write the current state
+            // and fail the test run so baseline updates are not ignored.
+            var matches = MatchesBaseline(Path.Combine(dir, "baseline_assets.txt"));
+            if (matches) return;
 
             WriteAssetInfo(Path.Combine(dir, "current_assets.txt"), GetCurrentAssetInfo());
 
             Log.Write(statefulComponentMessage.ToString());
+
+            throw new InvalidOperationException(
+                "Baseline assets mismatch detected. See current_assets.txt for details.");
 #endif
         }
 
