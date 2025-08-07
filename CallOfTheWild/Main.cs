@@ -122,7 +122,7 @@ namespace CallOfTheWild
         // ambiguity when Harmony searches for the original method.  A prior patch
         // attempted to target the method name without specifying parameters which
         // causes an AmbiguousMatchException when multiple overloads exist.
-        [Harmony12.HarmonyPatch(typeof(LibraryScriptableObject), "LoadDictionary", new Type[0])]
+        [Harmony12.HarmonyPatch(typeof(LibraryScriptableObject), nameof(LibraryScriptableObject.LoadDictionary), new Type[0])]
         static class LibraryScriptableObject_LoadDictionary_Patch
         {
             static void Postfix(LibraryScriptableObject __instance)
