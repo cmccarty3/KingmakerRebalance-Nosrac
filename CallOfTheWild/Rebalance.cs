@@ -1384,11 +1384,11 @@ namespace CallOfTheWild
             }
 
             //fix strength surge to work on allies
-            var strenght_surge = library.Get<BlueprintAbility>("6e3cbd10e50c6774e869ff8e20f2b352");
-            strenght_surge.CanTargetEnemies = false;
-            strenght_surge.CanTargetFriends = true;
-            strenght_surge.StickyTouch.TouchDeliveryAbility.CanTargetEnemies = false;
-            strenght_surge.StickyTouch.TouchDeliveryAbility.CanTargetFriends = true;
+            var strength_surge = library.Get<BlueprintAbility>("6e3cbd10e50c6774e869ff8e20f2b352");
+            strength_surge.CanTargetEnemies = false;
+            strength_surge.CanTargetFriends = true;
+            strength_surge.StickyTouch.TouchDeliveryAbility.CanTargetEnemies = false;
+            strength_surge.StickyTouch.TouchDeliveryAbility.CanTargetFriends = true;
             //fix aura of madness to be a toggle instead of ability
             var madness_greater_resource = library.Get<BlueprintAbilityResource>("3289ee86c57f6134d81770865c315e8b");
             var madness_domain_buff = library.Get<BlueprintBuff>("73192f96dd97b634cb794ae42f92c2ff");
