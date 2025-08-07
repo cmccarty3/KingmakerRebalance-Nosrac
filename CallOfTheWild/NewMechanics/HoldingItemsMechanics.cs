@@ -951,8 +951,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
     }
 
 
-    [Harmony12.HarmonyPatch(typeof(CharSAttack))]
-    [Harmony12.HarmonyPatch("SetupMainAttacks", Harmony12.MethodType.Normal)]
+    [Harmony12.HarmonyPatch(typeof(CharSAttack), "SetupMainAttacks", typeof(UnitDescriptor))]
     class CharSAttack__SetupMainAttacks__Patch
     {
         static IEnumerable<Harmony12.CodeInstruction> Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
@@ -982,8 +981,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
     }
 
 
-    [Harmony12.HarmonyPatch(typeof(RuleCalculateAttacksCount))]
-    [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
+    [Harmony12.HarmonyPatch(typeof(RuleCalculateAttacksCount), "OnTrigger", typeof(RulebookEventContext))]
     class RuleCalculateAttacksCount__OnTrigger__Patch
     {
         /*static IEnumerable<Harmony12.CodeInstruction> Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
