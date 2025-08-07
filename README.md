@@ -8,7 +8,7 @@ This is Pathfinder: Kingmaker mod.
 - If you have animal companions with animal growth buff, wait till it expires, before updating to 1.68
 - If you have characters with Quicken Blessing feat, respec them so they do not have it, before updating to 1.72,
 - Advanced fighter training options from 1.77 are not compatible with Advanced Martial Arts Mod, you can deactivate them if you prefer the latter.
-- Wizard Discoveries from 1.81 might conflict with those from The Lost Grimoire Mod, you can disable them in setting.json.
+- Wizard Discoveries from 1.81 might conflict with those from The Lost Grimoire Mod, you can disable them in settings.json.
 
 __Mod is only expected to work with 2.08 or 2.15 English versions of the game, only on windows and only with keyboard + mouse UI.__
 
