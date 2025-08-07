@@ -118,7 +118,10 @@ namespace CallOfTheWild
             }
             return true;
         }
-        [Harmony12.HarmonyPatch(typeof(LibraryScriptableObject), "LoadDictionary")]
+        // Specify the exact overload of LoadDictionary with no parameters to avoid
+        // ambiguity when Harmony searches for the original method.  A prior patch
+        // attempted to target the method name without specifying parameters which
+        // causes an AmbiguousMatchException when multiple overloads exist.
         [Harmony12.HarmonyPatch(typeof(LibraryScriptableObject), "LoadDictionary", new Type[0])]
         static class LibraryScriptableObject_LoadDictionary_Patch
         {
